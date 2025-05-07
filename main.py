@@ -65,16 +65,7 @@ def train(data_loader, model, optimizer, criterion_instance, criterion_cluster, 
         else:
             loss_scl = torch.tensor(0.0, device=z_i.device)
 
-        # confidence_criterion = losses.ConfidenceBasedCE(confidence_threshold, apply_class_balancing=True).cuda()
-
-        # if high_confidence_mask.sum() > 0:
-        #     loss_confidence = confidence_criterion(anchors_weak=z_i[high_confidence_mask], anchors_strong=z_s[high_confidence_mask]) + confidence_criterion(anchors_weak=z_j[high_confidence_mask], anchors_strong=z_s[high_confidence_mask])
-        # else:
-        #     loss_confidence = torch.tensor(0.0, device=z_i.device)
-        
-        # # 3. 视角一致性损失（KL 散度）
-        # kl_loss = torch.nn.KLDivLoss(reduction="batchmean")
-        # loss_c = kl_loss(torch.log(c_i), c_j) + kl_loss(torch.log(c_i), c_s) + kl_loss(torch.log(c_j), c_s)
+      
 
         # 4. 动态调整权重
         # dynamic_lambda_p = min(0.5, lambda_p + epoch * 0.005)  # 每个 epoch 增加 0.01
