@@ -33,7 +33,7 @@ def train(data_loader, model, optimizer, criterion_instance, criterion_cluster, 
     model.train()
 
     # 根据当前 epoch 动态调整置信度阈值
-    confidence_threshold = 0.2 + (epoch / total_epochs) * 0.4  # 从 0.1 增加到 0.5
+    confidence_threshold = 0.2 + (epoch / total_epochs) * 0.6  
     
     for step, ((x_i, x_j, x_s), _, indices) in enumerate(data_loader):
         optimizer.zero_grad()
@@ -46,15 +46,6 @@ def train(data_loader, model, optimizer, criterion_instance, criterion_cluster, 
         loss_instance = criterion_instance(z_i, z_j) + criterion_instance(z_j, z_s)
         loss_cluster = (criterion_cluster(c_i, c_j) + criterion_cluster(c_i, c_s) + criterion_cluster(c_j, c_s))
 
-        # 2. 验证索引合法性并计算伪监督损失
-        # if pseudo_labels is not None:
-        #     valid_indices = [i for i in indices if i < len(pseudo_labels)]
-        #     if len(valid_indices) > 0:
-        #         batch_pseudo_labels = pseudo_labels[valid_indices]
-        #     else:
-        #         batch_pseudo_labels = None
-        # else:
-        #     batch_pseudo_labels = None
         # 实时生成伪标签（动态伪标签）
         with torch.no_grad():
             c = model.forward_cluster(x_i, use_instance_classifier=False)
@@ -105,50 +96,8 @@ def train(data_loader, model, optimizer, criterion_instance, criterion_cluster, 
                   f"loss_scl: {loss_scl.item():.4f}\t")
         loss_epoch += loss.item()
         
-    # # 更新伪标签
-    # pseudo_labels = update_pseudo_labels(data_loader, model, device)
-    # print(f"Pseudo-labels updated for training.")
-    
     return loss_epoch
 
-
-# def compute_pseudo_label_loss(cluster_output, batch_pseudo_labels):
-#     # pseudo_labels = torch.tensor(pseudo_labels, device=cluster_output.device, dtype=torch.long)
-
-#     # 去除伪标签为 -1 的样本
-#     valid_mask = batch_pseudo_labels >= 0  
-#     confidence = torch.max(cluster_output, dim=1)[0]
-#     high_confidence_mask = (confidence > 0.1) & valid_mask   # 同时满足置信度阈值和有效伪标签
-#     # high_confidence_mask = confidence > 0.2
-
-#     if high_confidence_mask.sum() > 0:
-#         return torch.nn.CrossEntropyLoss()(
-#             cluster_output[high_confidence_mask],
-#             batch_pseudo_labels[high_confidence_mask]
-#         )
-#     return torch.tensor(0.0).to(cluster_output.device)
-
-
-
-# # 更新伪标签
-# def update_pseudo_labels(loader, model, device, current_epoch=0, total_epochs=1000):
-#     model.eval()
-#     pseudo_labels = np.full(len(loader.dataset), -1)  # 初始化伪标签为 -1
-#     for step, (x, _, indices) in enumerate(loader):
-#         x = x[0]
-#         x = x.to(device)
-#         indices = indices.to(device)  # 将 indices 移动到 GPU
-#         with torch.no_grad():
-#             c = model.forward_cluster(x, use_instance_classifier=True)  # 使用 instance projector 的输出, [batch_size, num_classes]
-#             confidence_threshold = 0.1 + (0.5 * current_epoch / total_epochs)  
-#             confidence_mask = torch.max(c, dim=1)[0] > confidence_threshold  # 置信度值  batchsize, bool
-#             # confidence_mask = torch.max(c, dim=1)[0] > 0.1  # 置信度值  batchsize, bool
-
-#             # 更新高置信度样本的伪标签
-#             high_confidence_indices = indices[confidence_mask].cpu().numpy()
-#             high_confidence_labels = torch.argmax(c[confidence_mask], dim=1).cpu().numpy()
-#             pseudo_labels[high_confidence_indices] = high_confidence_labels
-#     return pseudo_labels
 
 
 
@@ -409,19 +358,19 @@ if __name__ == "__main__":
         print("### Creating features from model ###")
         nmi, ari, f, acc = inference(eval_loader, model, device)
 
-        #  # 保存最佳模型
-        # if acc > best_acc:  # 如果当前 ACC 大于历史最佳
-        #     best_acc = acc
-        #     save_model(args, model, optimizer, scheduler, epoch, best_acc)  # 保存模型
-        #     print(f"New best model saved with ACC: {best_acc:.4f} at Epoch {epoch}")
+        # 保存最佳模型
+        if acc > best_acc:  # 如果当前 ACC 大于历史最佳
+            best_acc = acc
+            save_model(args, model, optimizer, scheduler, epoch, best_acc)  # 保存模型
+            print(f"New best model saved with ACC: {best_acc:.4f} at Epoch {epoch}")
     
-        # print(f"Current ACC: {acc:.4f}, Best ACC: {best_acc:.4f}")
-        # save_model(args, model, optimizer, scheduler, epoch, best_acc)
+        print(f"Current ACC: {acc:.4f}, Best ACC: {best_acc:.4f}")
+        save_model(args, model, optimizer, scheduler, epoch, best_acc)
         
-    #     # 保存模型
-    #     if epoch % 100 == 0:
-    #         save_model(args, model, optimizer, scheduler, epoch, best_acc)
-    # save_model(args, model, optimizer, scheduler, args.epochs, best_acc)
+        # 保存模型
+        if epoch % 100 == 0:
+            save_model(args, model, optimizer, scheduler, epoch, best_acc)
+    save_model(args, model, optimizer, scheduler, args.epochs, best_acc)
 
 
   
