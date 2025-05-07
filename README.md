@@ -1,6 +1,6 @@
-#Exploring Contrastive Learning and CLIP for Improving Image Clustering
+# Exploring Contrastive Learning and CLIP for Improving Image Clustering
 
-#Dependency
+# Dependency
 * python>=3.7
 * pytorch>=1.6.0
 * torchvision>=0.8.1
@@ -10,6 +10,7 @@
 * pyyaml>=5.3.1
 * scikit-learn>=0.23.2
 
-#Start
+# Start
 To quick start, please run
-'''python >main.py'''
+
+'''python > main.py'''
