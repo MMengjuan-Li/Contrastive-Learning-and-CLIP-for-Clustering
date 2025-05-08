@@ -8,7 +8,7 @@ class CLIP(nn.Module):
         super(CLIP, self).__init__()
         
         # 加载 CLIP 模型和其 ViT 编码器
-        self.model, _ = clip.load("ViT-L/14", device='cuda')  # 或者 'cuda' 选择设备
+        self.model, _ = clip.load("ViT-B/32", device='cuda')  # 或者 'cuda' 选择设备
         
         # CLIP的图像编码器输出是 512 维
         self.image_encoder = self.model.visual
