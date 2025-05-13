@@ -1,23 +1,21 @@
 # general
 seed: 42
 workers: 8
-dataset_dir: "autodl-tmp/datasets/imagenet10/ImageNet-10"
+dataset_dir: "path/to/your/dataset"
 
 # train options
-batch_size: 16  # 200
+batch_size: 200  
 image_size: 224
 start_epoch: 0  # first train=0, eval=last epoch
 epochs: 1000
 dataset: "ImageNet-10" # CIFAR-10 / CIFAR-100 / STL-10 / ImageNet-10 / ImageNet-dogs / tiny-ImageNet
 
-# lambda_p: 0.01  # 初始伪监督损失权重
-# lambda_c: 1  # 初始一致性损失权重
 lambda_s: 0.1
 
 # model options
 # resnet: "ResNet34" # ResNet18 / ResNet34 / ResNet50
 feature_dim: 128
-model_path: "autodl-tmp/save/ImageNet-10"
+model_path: "save/ImageNet-10"
 reload: False  # first train=False
 
 # loss options
